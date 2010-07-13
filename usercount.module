@@ -25,3 +25,46 @@ function usercount_requirements($phase) {
   }
   return $requirements;
 }
+
+/**
+ * Implementation of hook_block()
+ */
+function usercount_block($op = 'list', $delta = 0, $edit = array()) {
+  // List blocks on admin screen.
+  if ($op == 'list') {
+    $blocks = array();
+    $blocks[0] = array(
+      'info' => t('Number of users'),
+      'cache' => BLOCK_CACHE_GLOBAL,
+    );
+    return $blocks;
+  }
+
+  // Display block on page.
+  if ($op == 'view') {
+    if ($delta == 0) {
+      // Count the total number of users.
+      $total_users = db_result(db_query("SELECT COUNT(uid) FROM {users} WHERE uid > 0"));
+      // Count the number of blocked users.
+      $blocked_users = db_result(db_query("SELECT COUNT(uid) FROM {users} WHERE uid > 0 AND status = 0"));
+      return array(
+        'subject' => t('Registered Users'),
+        'content' => theme('usercount_block', $total_users, $blocked_users)
+      );
+    }
+  }
+}
+
+/**
+ * Implementation of hook_theme()
+ */
+function usercount_theme() {
+  $path = drupal_get_path('module', 'usercount');
+  return array(
+    'usercount_block' => array(
+      'arguments' => array('total' => 0, 'blocked' => 0),
+      'template' => 'usercount-block',
+      'path' => "$path/theme",
+    ),
+  );
+}
