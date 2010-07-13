@@ -1,0 +1,27 @@
+<?php
+// $Id$
+
+/**
+ * Implementation of hook_requirements()
+ */
+function usercount_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+
+  if ($phase == 'runtime') {
+    // Count the total number of users.
+    $total_users = db_result(db_query("SELECT COUNT(uid) FROM {users} WHERE uid > 0"));
+    // Count the number of blocked users.
+    $blocked_users = db_result(db_query("SELECT COUNT(uid) FROM {users} WHERE uid > 0 AND status = 0"));
+
+    $requirements['usercount'] = array(
+      'title' => t('Registered users'),
+      'value' => t('This site has @registered and @blocked.', array(
+                     '@registered' => format_plural($total_users, '1 registered user', '@count registered users'),
+                     '@blocked' => format_plural($blocked_users, '1 blocked user', '@count blocked users'))
+                   ),
+      'severity' => REQUIREMENT_INFO,
+    );
+  }
+  return $requirements;
+}

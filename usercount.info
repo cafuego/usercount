@@ -1,0 +1,5 @@
+; $Id$
+
+name = UserCount
+description = This module shows the number of registered users in the site status report.
+core = 6.x
